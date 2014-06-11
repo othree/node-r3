@@ -3,8 +3,7 @@ node-r3
 
 Node.js [r3][r3] binding.
 
-Still in development.
-
+[![Build Status](https://travis-ci.org/othree/node-r3.svg?branch=master)](https://travis-ci.org/othree/node-r3)
 
 Usage
 -----
