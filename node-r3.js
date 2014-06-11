@@ -116,9 +116,9 @@ Router.prototype.match = function (path) {
     return [data, captures];
 };
 
-// Router.prototype.free = function () {
-    // libr3.r3_tree_free(this.tree);
-// };
+Router.prototype.free = function () {
+    libr3.r3_tree_free(this.tree);
+};
 
 exports.new = function (routes) {
     return new Router(routes);

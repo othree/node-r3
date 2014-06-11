@@ -31,5 +31,8 @@ describe('node-r3', function () {
     dispatch[0].should.equal('/bar/[data]/[data]');
   });
 
-  // router.free();
+  after(function () {
+    router.free();
+  });
 });
+
