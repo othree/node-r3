@@ -1,6 +1,6 @@
-{
+
     "name": "node-r3",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "homepage": "https://github.com/othree/node-r3",
     "repository": "https://github.com/othree/node-r3.git",
     "author": "othree (https://github.com/othree)",
