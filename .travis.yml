@@ -11,4 +11,4 @@ before_install:
   - ./configure && make
   - sudo make install
   - cd ..
-  - ls /usr/local/lib/libr3*
+  - export LD_LIBRARY_PATH=/usr/local/lib
