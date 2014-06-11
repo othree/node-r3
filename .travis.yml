@@ -11,3 +11,4 @@ before_install:
   - ./configure && make
   - sudo make install
   - cd ..
+  - ls /usr/local/lib/libr3*
