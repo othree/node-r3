@@ -94,7 +94,7 @@ var Router = function (routes) {
     return this;
 };
 
-Router.prototype.match = function () {
+Router.prototype.dump = function () {
     if (!this.tree) { return; }
     libr3.r3_tree_dump(this.tree, 0);
 };
