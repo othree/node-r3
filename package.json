@@ -1,0 +1,21 @@
+{
+    "name": "node-r3",
+    "version": "0.0.1",
+    "homepage": "https://github.com/othree/node-r3",
+    "repository": "https://github.com/othree/node-r3.git",
+    "author": "othree (https://github.com/othree)",
+    "main": "./node-r3.js",
+    "keywords": [
+        "node",
+        "r3",
+        "router"
+    ],
+    "dependencies": {
+        "ffi": "*",
+        "ref": "*",
+        "ref-struct": "*",
+        "ref-array": "*"
+    },
+    "license": "MIT"
+}
+
