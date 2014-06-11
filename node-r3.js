@@ -1,3 +1,4 @@
+/*jslint forin: true */
 var ref = require('ref');
 var StructType = require('ref-struct');
 var ArrayType = require('ref-array');
@@ -71,52 +72,56 @@ var libr3 = ffi.Library('libr3', {
 });
 
 var r3_tree_insert_path = function (tree, path, data) {
-    // console.log('insert', data);
     return libr3.r3_tree_insert_pathl_ex(tree, path, path.length, null, data, null);
 };
 
-var r3_tree_insert_pathl = function (tree, path, len, data) {
-    return libr3.r3_tree_insert_pathl_ex(tree, path, len, null, data, null);
+var match_entry_create = function (path) {
+    return libr3.match_entry_createl(path, path.length);
+};
+var r3_tree_match = function (tree, path, entry) {
+    return libr3.r3_tree_matchl(tree, path, path.length, entry);
 };
 
-var n = libr3.r3_tree_create(10);
-var data0 = new Buffer('BOMMMM\u0000');
-var data1 = new Buffer('BOOM\u0000');
-var data2 = new Buffer('FOFOFOFO\u0000');
+var Router = function (routes, dump) {
+    var route, data;
+    this.tree = libr3.r3_tree_create(10);
+    for (route in routes) {
+        data = routes[route];
+        data = new Buffer(data + '\u0000');
+        r3_tree_insert_path(this.tree, route, data);
+    }
+    libr3.r3_tree_compile(this.tree);
+    if (dump) {
+        libr3.r3_tree_dump(this.tree, 0);
+    }
+    return this;
+};
 
-// console.log(ref.readCString(data2).slice(0, -4));
-// console.log(data1);
-// console.log(data2);
+Router.prototype.match = function (path) {
+    var entry = match_entry_create(path);
+    var node = r3_tree_match(this.tree, path, entry);
+    if (ref.isNull(node)) {
+        return;
+    }
+    var data = ref.readCString(node.deref().data, 0);
+    var vars = entry.deref().vars.deref();
+    var capturesBuffer = new StringArray(ref.reinterpret(vars.tokens, vars.len * ref.types.CString.size));
+    var captures = [];
+    var i;
 
-console.log( ref.reinterpretUntilZeros(data2, 1).toString('hex') );
+    for (i = 0; i < capturesBuffer.length; i++) {
+        captures.push(capturesBuffer[i]);
+    }
 
-// var nodea = r3_tree_insert_path(n, "", data0);
-var nodea = r3_tree_insert_path(n, "/zoo", data1);
-var nodeb = r3_tree_insert_path(n, "/foo", data2);
-var nodec = r3_tree_insert_path(n, "/foo/{id}/{uid:[a-z]+}", data2);
+    return [data, captures];
+};
 
-// console.log('b', nodeb);
+Router.prototype.free = function () {
+    libr3.r3_tree_free(this.tree);
+};
 
 
-libr3.r3_tree_compile(n);
-// console.log('[compiled]', n);
-libr3.r3_tree_dump(n, 0);
-
-var entry = libr3.match_entry_createl("/foo/barr/qoaa", 14);
-var node = libr3.r3_tree_matchl(n, "/foo/barr/qoaa", 14, entry);
-
-// console.log('receive');
-// console.log(node.deref().data);
-console.log(ref.readCString(node.deref().data, 0));
-console.log( ref.reinterpretUntilZeros(node.deref().data, 1).toString('hex') );
-// console.log(node.toString('hex'));
-// console.log('receive end');
-
-console.log(entry.deref().vars.deref());
-var b = entry.deref().vars.deref();
-
-var bs = new StringArray(ref.reinterpret(b.tokens, b.len * ref.types.CString.size));
-console.log(bs.length);
-
-libr3.r3_tree_free(n);
+exports.new = function (routes) {
+    return new Router(routes);
+};
 
