@@ -2,9 +2,11 @@ language: node_js
 node_js:
   - 0.10
 before_install:
-  - "sudo apt-get install autotools"
-  - "git clone https://github.com/c9s/r3.git"
-  - "cd r3"
-  - "./autogen.sh"
-  - "./configure && make"
-  - "make install"
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq automake pkg-config build-essential libtool automake autoconf m4 gnulib
+  - sudo apt-get install -qq check libpcre3 libpcre3-dev libjemalloc-dev libjemalloc1
+  - git clone https://github.com/c9s/r3.git
+  - cd r3
+  - ./autogen.sh
+  - ./configure && make
+  - make install
