@@ -16,6 +16,13 @@
         "ref-struct": "*",
         "ref-array": "*"
     },
+    "devDependencies": {
+        "mocha": "*",
+        "should": "*"
+    },
+    "scripts": {
+        "test": "mocha"
+    },
     "license": "MIT"
 }
 
