@@ -1,6 +1,9 @@
 language: node_js
 node_js:
-    - 0.10
+  - 0.10
 before_install:
-    - "echo 'a'"
-    - "echo 'b'"
+  - "git clone https://github.com/c9s/r3.git"
+  - "cd r3"
+  - "./autogen.sh"
+  - "./configure && make"
+  - "make install"
