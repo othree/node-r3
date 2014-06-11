@@ -82,7 +82,7 @@ var r3_tree_match = function (tree, path, entry) {
     return libr3.r3_tree_matchl(tree, path, path.length, entry);
 };
 
-var Router = function (routes, dump) {
+var Router = function (routes) {
     var route, data;
     this.tree = libr3.r3_tree_create(10);
     for (route in routes) {
@@ -91,13 +91,16 @@ var Router = function (routes, dump) {
         r3_tree_insert_path(this.tree, route, data);
     }
     libr3.r3_tree_compile(this.tree);
-    if (dump) {
-        libr3.r3_tree_dump(this.tree, 0);
-    }
     return this;
 };
 
+Router.prototype.match = function () {
+    if (!this.tree) { return; }
+    libr3.r3_tree_dump(this.tree, 0);
+};
+
 Router.prototype.match = function (path) {
+    if (!this.tree) { return; }
     var entry = match_entry_create(path);
     var node = r3_tree_match(this.tree, path, entry);
     if (ref.isNull(node)) {
@@ -117,7 +120,9 @@ Router.prototype.match = function (path) {
 };
 
 Router.prototype.free = function () {
+    if (!this.tree) { return; }
     libr3.r3_tree_free(this.tree);
+    this.tree = null;
 };
 
 exports.new = function (routes) {
