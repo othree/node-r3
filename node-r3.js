@@ -25,6 +25,21 @@ var node = StructType({
     data: "pointer"
 });
 
+var route = StructType({
+    path: "string",
+    path_len: "int",
+
+    request_method: "int",
+
+    host: "string",
+    host_len: "int",
+
+    data: "pointer",
+
+    remote_addr_pattern: "string",
+    remote_addr_pattern_len: "int"
+});
+
 var StringArray = ArrayType("string");
 var str_array = StructType({
     tokens: "pointer",
@@ -63,6 +78,15 @@ const METHOD_PATCH = 2<<4;
 const METHOD_HEAD = 2<<5;
 const METHOD_OPTIONS = 2<<6;
 
+const METHODS = {
+  GET: METHOD_GET,
+  POST: METHOD_POST,
+  PUT: METHOD_PUT,
+  DELETE: METHOD_DELETE,
+  PATCH: METHOD_PATCH,
+  HEAD: METHOD_HEAD,
+  OPTIONS: METHOD_OPTIONS
+};
 
 var ffi = require('ffi');
 
@@ -81,6 +105,9 @@ var libr3 = ffi.Library('libr3', {
     // node * r3_tree_matchl(const node * n, const char * path, int path_len, match_entry * entry);
     "r3_tree_matchl": [ref.refType(node), ["pointer", "string", "int", "pointer"]],
 
+    // route * r3_tree_match_route(const node *n, match_entry * entry);
+    "r3_tree_match_route": [ref.refType(route), ["pointer", "pointer"]],
+
     "r3_tree_free": ["void", ["pointer"]],
 
     "match_entry_createl": [ref.refType(match_entry), ["string", "int"]],
@@ -91,23 +118,33 @@ var r3_tree_insert_path = function (tree, path, data) {
 };
 
 var r3_tree_insert_route = function (tree, method, path, data) {
-    return libr3.r3_tree_insert_route_ex(tree, methond, path, path.length, data, null);
+    return libr3.r3_tree_insert_routel_ex(tree, method, path, path.length, data, null);
 };
 
 var match_entry_create = function (path) {
     return libr3.match_entry_createl(path, path.length);
 };
+
 var r3_tree_match = function (tree, path, entry) {
     return libr3.r3_tree_matchl(tree, path, path.length, entry);
 };
 
 var Router = function (routes) {
-    var route, data;
+    var route, data, method, route_frag;
     this.tree = libr3.r3_tree_create(10);
     for (route in routes) {
         data = routes[route];
         data = new Buffer(data + '\u0000');
-        r3_tree_insert_path(this.tree, route, data);
+        route = route.trim();
+        route_frag = route.split(' ');
+        if (route_frag.length > 1) {
+          route = route_frag[1];
+          method = METHODS[route_frag[0].toUpperCase()];
+          if (!method) { throw new Error(route_frag[0] + "method not exist."); }
+          r3_tree_insert_route(this.tree, method, route, data);
+        } else {
+          r3_tree_insert_path(this.tree, route, data);
+        }
     }
     libr3.r3_tree_compile(this.tree);
     return this;
@@ -120,17 +157,30 @@ Router.prototype.dump = function () {
 
 Router.prototype.match = function (path) {
     if (!this.tree) { return; }
-    var entry = match_entry_create(path);
-    var node = r3_tree_match(this.tree, path, entry);
+    var entry;
+
+    path = path.trim();
+    var path_frag = path.split(' ');
+    if (path_frag.length > 1) {
+      path = path_frag[1];
+      entry = match_entry_create(path);
+      method = METHODS[path_frag[0].toUpperCase()];
+      entry.deref().request_method = method;
+    } else {
+      entry = match_entry_create(path);
+    }
+
+    var node = libr3.r3_tree_match_route(this.tree, entry);
+
     if (ref.isNull(node)) {
         return;
     }
+
     var data = ref.readCString(node.deref().data, 0);
+
     var vars = entry.deref().vars.deref();
     var capturesBuffer = new StringArray(ref.reinterpret(vars.tokens, vars.len * ref.types.CString.size));
-    var captures = [];
-    var i;
-
+    var captures = [], i;
     for (i = 0; i < capturesBuffer.length; i++) {
         captures.push(capturesBuffer[i]);
     }
