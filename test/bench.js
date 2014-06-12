@@ -344,7 +344,7 @@ var router = Router.new({
 
 var i = 0;
 
-var N = 500000;
+var N = 10000;
 
 var s = (new Date()).getTime();
 for (i = 0; i < N; i++) {
