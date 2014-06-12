@@ -143,7 +143,7 @@ var Router = function (routes) {
           if (!method) { throw new Error(route_frag[0] + "method not exist."); }
           r3_tree_insert_route(this.tree, method, route, data);
         } else {
-          r3_tree_insert_path(this.tree, route, data);
+          r3_tree_insert_route(this.tree, 0, route, data);
         }
     }
     libr3.r3_tree_compile(this.tree);
