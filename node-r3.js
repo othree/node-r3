@@ -55,17 +55,32 @@ var match_entry = StructType({
     // has_slug: "uchar"
 // });
 
+const METHOD_GET = 2;
+const METHOD_POST = 2<<1;
+const METHOD_PUT = 2<<2;
+const METHOD_DELETE = 2<<3;
+const METHOD_PATCH = 2<<4;
+const METHOD_HEAD = 2<<5;
+const METHOD_OPTIONS = 2<<6;
+
 
 var ffi = require('ffi');
 
 var libr3 = ffi.Library('libr3', {
     "r3_tree_create": ["pointer", ["int"]],
+
+    // node * r3_tree_insert_pathl_ex(node *tree, const char *path, int path_len, route * route, void * data, char ** errstr);
     "r3_tree_insert_pathl_ex": ["pointer", ["pointer", "string", "int", "pointer", "pointer", "pointer"]],
+
+    // route * r3_tree_insert_routel_ex(node *tree, int method, const char *path, int path_len, void *data, char **errstr);
+    "r3_tree_insert_routel_ex": ["pointer", ["pointer", "int", "string", "int", "pointer", "pointer"]],
+
     "r3_tree_compile": ["void", ["pointer"]],
     "r3_tree_dump": ["void", ["pointer", "int"]],
+
+    // node * r3_tree_matchl(const node * n, const char * path, int path_len, match_entry * entry);
     "r3_tree_matchl": [ref.refType(node), ["pointer", "string", "int", "pointer"]],
 
-    "r3_node_find_edge": ["pointer", ["pointer", "string", "int"]],
     "r3_tree_free": ["void", ["pointer"]],
 
     "match_entry_createl": [ref.refType(match_entry), ["string", "int"]],
@@ -73,6 +88,10 @@ var libr3 = ffi.Library('libr3', {
 
 var r3_tree_insert_path = function (tree, path, data) {
     return libr3.r3_tree_insert_pathl_ex(tree, path, path.length, null, data, null);
+};
+
+var r3_tree_insert_route = function (tree, method, path, data) {
+    return libr3.r3_tree_insert_route_ex(tree, methond, path, path.length, data, null);
 };
 
 var match_entry_create = function (path) {
