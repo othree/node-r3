@@ -130,11 +130,13 @@ var r3_tree_match = function (tree, path, entry) {
 };
 
 var Router = function (routes) {
-    var route, data, method, route_frag;
+    var route, data, method, route_frag, i = 0;
     this.tree = libr3.r3_tree_create(10);
+    this.data = [];
     for (route in routes) {
-        data = routes[route];
-        data = new Buffer(data + '\u0000');
+        this.data[i] = routes[route];
+        data = new Buffer(4);
+        data.writeUInt16LE(i, 0);
         route = route.trim();
         route_frag = route.split(' ');
         if (route_frag.length > 1) {
@@ -145,6 +147,7 @@ var Router = function (routes) {
         } else {
           r3_tree_insert_route(this.tree, 0, route, data);
         }
+        i++;
     }
     libr3.r3_tree_compile(this.tree);
     return this;
@@ -176,10 +179,11 @@ Router.prototype.match = function (path) {
         return;
     }
 
-    var data = ref.readCString(node.deref().data, 0);
+    var count = node.deref().data.reinterpret(4).readUInt16LE(0);
+    var data = this.data[count];
 
     var vars = entry.deref().vars.deref();
-    var capturesBuffer = new StringArray(ref.reinterpret(vars.tokens, vars.len * ref.types.CString.size));
+    var capturesBuffer = new StringArray(vars.tokens.reinterpret(vars.len * ref.types.CString.size));
     var captures = [], i;
     for (i = 0; i < capturesBuffer.length; i++) {
         captures.push(capturesBuffer[i]);
