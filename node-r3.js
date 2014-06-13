@@ -111,6 +111,7 @@ var libr3 = ffi.Library('libr3', {
   "r3_tree_free": ["void", ["pointer"]],
 
   "match_entry_createl": [ref.refType(match_entry), ["string", "int"]],
+  "match_entry_free": ["void", ["pointer"]],
 });
 
 var r3_tree_insert_path = function (tree, path, data) {
@@ -135,8 +136,7 @@ var Router = function (routes) {
   this.data = [];
   for (route in routes) {
     this.data[i] = routes[route];
-    data = new Buffer(4);
-    data.writeUInt32LE(i, 0)
+    data = ref.alloc('int', i).ref();
     route = route.trim();
     route_frag = route.split(' ');
     if (route_frag.length > 1) {
@@ -177,8 +177,8 @@ Router.prototype.match = function (path) {
 
   if (ref.isNull(node)) { return; }
 
-  var count = node.deref().data.reinterpret(4).readUInt32LE(0);
-  var data = this.data[count];
+  var index = node.deref().data.reinterpret(8).readPointer(0, 4).readUInt32LE(0);
+  var data = this.data[index];
 
   var vars = entry.deref().vars.deref();
   var capturesBuffer = new StringArray(vars.tokens.reinterpret(vars.len * ref.types.CString.size));
@@ -187,6 +187,7 @@ Router.prototype.match = function (path) {
     captures.push(capturesBuffer[i]);
   }
 
+  libr3.match_entry_free(entry);
   return [data, captures];
 };
 
@@ -205,7 +206,7 @@ Router.prototype.httpHandler = function (err) {
 
     result = self.match(entry);
 
-    if (result) {
+    if (result && typeof result[0] === 'function') {
       result[0].apply(this, [req, res, result[1]]);
     } else if (typeof err === 'function') {
       err(req, res);
