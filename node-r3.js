@@ -136,7 +136,7 @@ var Router = function (routes) {
     for (route in routes) {
         this.data[i] = routes[route];
         data = new Buffer(4);
-        data.writeUInt16LE(i, 0);
+        data.writeUInt32LE(i, 0)
         route = route.trim();
         route_frag = route.split(' ');
         if (route_frag.length > 1) {
@@ -179,7 +179,7 @@ Router.prototype.match = function (path) {
         return;
     }
 
-    var count = node.deref().data.reinterpret(4).readUInt16LE(0);
+    var count = node.deref().data.reinterpret(4).readUInt32LE(0);
     var data = this.data[count];
 
     var vars = entry.deref().vars.deref();
