@@ -196,7 +196,27 @@ Router.prototype.free = function () {
   this.tree = null;
 };
 
+Router.prototype.httpHandler = function (err) {
+  var self = this;
+  return function(req, res) {
+    var method = req.method;
+    var path = req.url;
+    var entry = method + " " + path;
+
+    result = self.match(entry);
+
+    if (result && typeof result[0] === 'function') {
+      result[0].apply(this, [req, res, result[1]]);
+    } else if (typeof err === 'function') {
+      err(req, res);
+    } else {
+      res.end();
+    }
+  };
+};
+
 exports.new = function (routes) {
   return new Router(routes);
 };
+
 
