@@ -205,7 +205,7 @@ Router.prototype.httpHandler = function (err) {
 
     result = self.match(entry);
 
-    if (result && typeof result[0] === 'function') {
+    if (result) {
       result[0].apply(this, [req, res, result[1]]);
     } else if (typeof err === 'function') {
       err(req, res);
