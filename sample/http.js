@@ -1,5 +1,5 @@
 #!/usr/local/bin/node
-require('v8-profiler');
+
 var http = require('http');
 var Router = require('../').Router;
 
