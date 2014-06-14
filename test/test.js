@@ -2,9 +2,9 @@
 var should = require('should');
 require('mocha');
 
-var Router = require('../');
+var Router = require('../').Router;
 
-var router = Router.new({
+var router = new Router({
   "/foo": "/foo",
   "/foo/{id}": "/foo/[data]",
   "/bar/{uid}/{post_id}": "/bar/[data]/[data]",

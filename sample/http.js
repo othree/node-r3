@@ -1,28 +1,32 @@
+#!/usr/local/bin/node
+require('v8-profiler');
 var http = require('http');
-var Router = require('../');
+var Router = require('../').Router;
 
 var handler = function (route) {
   return function (req, res, params) {
     var content = req.method + ' ' + req.url + ' ' + route + ' ';
     if (params) { content += params.toString(); }
     res.end(content);
+    content = null;
   };
 };
 
-var router = Router.new({
+var router = new Router({
   "/": handler("/index"),
   "/foo": handler("/foo"),
   "/foo/{id}": handler("/foo/[data]"),
   "/bar/{uid}/{post_id}": handler("/bar/[data]/[data]"),
-  "PUT /getme": handler("/getme[post]"),
-  "POST /getme": handler("/getme[post]"),
-  "GET /getme": handler("/getme[get]"),
-  "PUT /ugetme": handler("/getme[post]"),
-  "POST /ugetme": handler("/getme[post]"),
-  "GET /ugetme": handler("/getme[get]"),
+  "POST /getme2": handler("/getme[post]"),
+  "PUT /getme1": handler("/getme[put]"),
+  "GET /getme3": handler("/getme[get]"),
+  "PUT /ugetme1": handler("/ugetme[put]"),
+  "POST /ugetme2": handler("/ugetme[post]"),
+  "GET /ugetme3": handler("/ugetme[get]"),
 });
 
-  var notfound = handler('404');
+router.dump();
+var notfound = handler('404');
 
 var server = http.createServer(router.httpHandler(notfound));
 

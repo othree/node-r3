@@ -209,19 +209,21 @@ Router.prototype.httpHandler = function (err) {
     var path = req.url;
     var entry = method + " " + path;
 
-    result = self.match(entry);
+    var result = self.match(entry);
 
     if (result && typeof result[0] === 'function') {
-      result[0].apply(this, [req, res, result[1]]);
+      result[0].apply(this, [req, res].concat(result[1]));
     } else if (typeof err === 'function') {
-        err(req, res, result);
+      err.apply(this, [req, res, result[0]].concat(result[1]));
     } else {
       res.end();
     }
+
+    method = path = entry = result = null;
   };
 };
 
-exports.new = function (routes) {
+exports.Router = function (routes) {
   return new Router(routes);
 };
 
