@@ -214,7 +214,11 @@ Router.prototype.httpHandler = function (err) {
     if (result && typeof result[0] === 'function') {
       result[0].apply(this, [req, res].concat(result[1]));
     } else if (typeof err === 'function') {
-      err.apply(this, [req, res, result[0]].concat(result[1]));
+      if (result) {
+          err.apply(this, [req, res, result[0]].concat(result[1]));
+      } else {
+          err.apply(this, [req, res]);
+      }
     } else {
       res.end();
     }
