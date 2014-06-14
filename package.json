@@ -1,14 +1,14 @@
 {
     "name": "node-r3",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "homepage": "https://github.com/othree/node-r3",
     "repository": "https://github.com/othree/node-r3.git",
     "author": "othree (https://github.com/othree)",
     "main": "./node-r3.js",
     "keywords": [
         "node",
-        "r3",
-        "router"
+        "route",
+        "r3"
     ],
     "dependencies": {
         "ffi": "*",
