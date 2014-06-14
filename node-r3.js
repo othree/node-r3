@@ -134,9 +134,11 @@ var Router = function (routes) {
   var route, data, method, route_frag, i = 0;
   this.tree = libr3.r3_tree_create(10);
   this.data = [];
+  this.index = []
   for (route in routes) {
     this.data[i] = routes[route];
     data = ref.alloc('int', i).ref();
+    this.index[i] = data; // prevent GC
     route = route.trim();
     route_frag = route.split(' ');
     if (route_frag.length > 1) {
@@ -179,6 +181,7 @@ Router.prototype.match = function (path) {
 
   var index = node.deref().data.reinterpret(8).readPointer(0, 4).readUInt32LE(0);
   var data = this.data[index];
+  index = null;
 
   var vars = entry.deref().vars.deref();
   var capturesBuffer = new StringArray(vars.tokens.reinterpret(vars.len * ref.types.CString.size));
@@ -188,6 +191,8 @@ Router.prototype.match = function (path) {
   }
 
   libr3.match_entry_free(entry);
+  capturesBuffer = null;
+  node = null;
   return [data, captures];
 };
 
@@ -209,7 +214,7 @@ Router.prototype.httpHandler = function (err) {
     if (result && typeof result[0] === 'function') {
       result[0].apply(this, [req, res, result[1]]);
     } else if (typeof err === 'function') {
-      err(req, res);
+        err(req, res, result);
     } else {
       res.end();
     }
