@@ -22,7 +22,7 @@ Basic usage:
 
     router.free();
 
-The route's init parameter is an POJSO(Plain Old JavaScript Object). Key is route and value is data. It is possible to add method condition in route, ex: `GET /foo`.
+The router's init parameter is an POJSO(Plain Old JavaScript Object). Key is route path and value is data. It is possible to add method condition in route, ex: `GET /foo`. And all JS data type can be used for data.
 
 There is a http handler helper function:
 

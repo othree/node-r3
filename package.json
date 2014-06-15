@@ -1,13 +1,14 @@
 {
     "name": "node-r3",
     "version": "0.0.5",
+    "description": "Nodejs r3 binding.",
     "homepage": "https://github.com/othree/node-r3",
     "repository": "https://github.com/othree/node-r3.git",
     "author": "othree (https://github.com/othree)",
     "main": "./node-r3.js",
     "keywords": [
         "node",
-        "route",
+        "router",
         "r3"
     ],
     "dependencies": {

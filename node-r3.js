@@ -141,14 +141,19 @@ var Router = function (routes) {
     this.index[i] = data; // prevent GC
     route = route.trim();
     route_frag = route.split(' ');
+    method = 0;
     if (route_frag.length > 1) {
-      route = route_frag[1];
-      method = METHODS[route_frag[0].toUpperCase()];
+      method = route_frag.shift().toUpperCase();
+      condition = parseInt(method);
+      if (isNaN(condition)) {
+        method = METHODS[method];
+      } else {
+        method = condition;
+      }
+      route = route_frag.join(' ').trim();
       if (!method) { throw new Error(route_frag[0] + "method not exist."); }
-      r3_tree_insert_route(this.tree, method, route, data);
-    } else {
-      r3_tree_insert_route(this.tree, 0, route, data);
     }
+    r3_tree_insert_route(this.tree, method, route, data);
     i++;
   }
   libr3.r3_tree_compile(this.tree);
