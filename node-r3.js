@@ -167,26 +167,36 @@ Router.prototype.dump = function () {
 
 Router.prototype.match = function (path) {
   if (!this.tree) { return; }
-  var entry;
+  var entry, method;
 
   path = path.trim();
   var path_frag = path.split(' ');
   if (path_frag.length > 1) {
-    path = path_frag[1];
-    entry = match_entry_create(path);
-    method = METHODS[path_frag[0].toUpperCase()];
+    method = path_frag.shift().toUpperCase();
+    path = path_frag.join(' ').trim();
+    condition = parseInt(method);
+    if (isNaN(condition)) {
+      method = METHODS[method];
+    } else {
+      method = condition;
+    }
+  }
+  entry = match_entry_create(path);
+  if (method != null) {
     entry.deref().request_method = method;
-  } else {
-    entry = match_entry_create(path);
   }
 
   var node = libr3.r3_tree_match_route(this.tree, entry);
 
-  if (ref.isNull(node)) { return; }
+  if (ref.isNull(node)) { 
+    // free
+    libr3.match_entry_free(entry);
+    entry = method = null
+    return;
+  }
 
   var index = node.deref().data.reinterpret(8).readPointer(0, 4).readUInt32LE(0);
   var data = this.data[index];
-  index = null;
 
   var vars = entry.deref().vars.deref();
   var capturesBuffer = new StringArray(vars.tokens.reinterpret(vars.len * ref.types.CString.size));
@@ -195,9 +205,10 @@ Router.prototype.match = function (path) {
     captures.push(capturesBuffer[i]);
   }
 
+  // free
   libr3.match_entry_free(entry);
-  capturesBuffer = null;
-  node = null;
+  entry = method = null
+  capturesBuffer = index = node = null;
   return [data, captures];
 };
 
@@ -212,7 +223,7 @@ Router.prototype.httpHandler = function (err) {
   return function(req, res) {
     var method = req.method;
     var path = req.url;
-    var entry = method + " " + path;
+    var entry = [method, path].join(' ');
 
     var result = self.match(entry);
 
