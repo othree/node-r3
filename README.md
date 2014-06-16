@@ -25,8 +25,9 @@ Basic usage:
 The router's initial argument is an POJSO(Plain Old JavaScript Object). Key is route path and value is data. It is possible to add method condition in route, ex: `GET /foo`. And all JS data type can be used for data. Method condition can support 3 format.
 
 1. Single method, ex: `GET`, `POST`.
-2. Multiple method. Both `,` and `|` can be used as separator. Ex: `GET,POST` or `POST|PUT`.
-3. Integer in string, ex: `1`, `4`.
+2. Multiple method. Both `,` and `|` can be used as separator. Ex: `GET,POST` or `POST|PUT`.  
+   No space allowed.
+3. Integer in string, ex: `1`, `4`. Usefule for custom router application. Don't support multiple method in this format. You should deal with it before send to Router. Ex: `[1 | 4, '/foo'].join(' ')`
 
 Condition supports following HTTP methods:
 
@@ -51,7 +52,14 @@ There is a http handler helper function:
 
     var server = http.createServer(router.httpHandler(notfound));
 
-If the data is a function. It will auto execute when route match. And receive `[req, res, params...]`. Otherwise, it will call `notfound` as fallback. Params will be `[req, res, data, params...]`. A sample file `sample/http.js` is provided.
+If the data is a function. It will auto execute when route match. And receive `[req, res, params...]`. Otherwise, it will call `notfound` as fallback. Arguments will be `[req, res, data, params...]`. A sample file `sample/http.js` is provided.
+
+Alternative
+-----------
+
+There is another [caasi/node-r3][] projetc use different approach to let node can use r3's feature
+
+[caasi/node-r3]:https://github.com/caasi/node-r3
 
 TODO
 ----
