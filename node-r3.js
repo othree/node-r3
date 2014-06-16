@@ -1,4 +1,4 @@
-/*jslint forin: true */
+/*jslint forin: true, bitwise: true */
 var ref = require('ref');
 var StructType = require('ref-struct');
 var ArrayType = require('ref-array');
@@ -131,10 +131,12 @@ var r3_tree_match = function (tree, path, entry) {
 };
 
 var Router = function (routes) {
-  var route, data, method, route_frag, i = 0;
+  if (!routes) { routes = {}; }
+  var route, data, m, method, methods, 
+      condition, route_frag, i = 0;
   this.tree = libr3.r3_tree_create(10);
   this.data = [];
-  this.index = []
+  this.index = [];
   for (route in routes) {
     this.data[i] = routes[route];
     data = ref.alloc('int', i).ref();
@@ -146,17 +148,22 @@ var Router = function (routes) {
       method = route_frag.shift().toUpperCase();
       condition = parseInt(method);
       if (isNaN(condition)) {
-        method = METHODS[method];
+        methods = method.split(/[,|]/);
+        method = 0;
+        while ((m = methods.shift())) {
+          method = method | METHODS[m];
+        }
       } else {
         method = condition;
       }
       route = route_frag.join(' ').trim();
-      if (!method) { throw new Error(route_frag[0] + "method not exist."); }
+      if (!method) { throw new Error("method not exist."); }
     }
     r3_tree_insert_route(this.tree, method, route, data);
     i++;
   }
   libr3.r3_tree_compile(this.tree);
+
   return this;
 };
 
@@ -167,7 +174,7 @@ Router.prototype.dump = function () {
 
 Router.prototype.match = function (path) {
   if (!this.tree) { return; }
-  var entry, method;
+  var entry, method, condition;
 
   path = path.trim();
   var path_frag = path.split(' ');
@@ -182,7 +189,7 @@ Router.prototype.match = function (path) {
     }
   }
   entry = match_entry_create(path);
-  if (method != null) {
+  if (method !== undefined) {
     entry.deref().request_method = method;
   }
 
@@ -191,7 +198,7 @@ Router.prototype.match = function (path) {
   if (ref.isNull(node)) { 
     // free
     libr3.match_entry_free(entry);
-    entry = method = null
+    entry = method = condition = null;
     return;
   }
 
@@ -207,7 +214,7 @@ Router.prototype.match = function (path) {
 
   // free
   libr3.match_entry_free(entry);
-  entry = method = null
+  entry = method = null;
   capturesBuffer = index = node = null;
   return [data, captures];
 };
@@ -231,9 +238,9 @@ Router.prototype.httpHandler = function (err) {
       result[0].apply(this, [req, res].concat(result[1]));
     } else if (typeof err === 'function') {
       if (result) {
-          err.apply(this, [req, res, result[0]].concat(result[1]));
+        err.apply(this, [req, res, result[0]].concat(result[1]));
       } else {
-          err.apply(this, [req, res]);
+        err.apply(this, [req, res]);
       }
     } else {
       res.end();

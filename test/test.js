@@ -11,9 +11,7 @@ var router = new Router({
   "PUT /getme": "/getme[post]",
   "POST /getme": "/getme[post]",
   "GET /getme": "/getme[get]",
-  "PUT /ugetme": "/getme[post]",
-  "POST /ugetme": "/getme[post]",
-  "GET /ugetme": "/getme[get]",
+  "PUT|POST|GET /ugetme": "/ugetme[post,put,get]",
 });
 
 describe('node-r3', function () {
@@ -52,6 +50,18 @@ describe('node-r3', function () {
   it('condition on pathnode', function () {
     dispatch = router.match('GET /foo');
     dispatch[0].should.equal('/foo');
+  });
+
+  it('condition in one rule', function () {
+    dispatch = router.match('GET /ugetme');
+    dispatch[0].should.equal('/ugetme[post,put,get]');
+
+    dispatch = router.match('POST /ugetme');
+    dispatch[0].should.equal('/ugetme[post,put,get]');
+  });
+
+  it('condition in one rule fail test', function () {
+    dispatch = (router.match('PATCH /ugetme') === undefined).should.be.ok;
   });
 
   after(function () {

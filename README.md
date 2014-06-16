@@ -22,7 +22,21 @@ Basic usage:
 
     router.free();
 
-The router's init parameter is an POJSO(Plain Old JavaScript Object). Key is route path and value is data. It is possible to add method condition in route, ex: `GET /foo`. And all JS data type can be used for data.
+The router's initial argument is an POJSO(Plain Old JavaScript Object). Key is route path and value is data. It is possible to add method condition in route, ex: `GET /foo`. And all JS data type can be used for data. Method condition can support 3 format.
+
+1. Single method, ex: `GET`, `POST`.
+2. Multiple method. Both `,` and `|` can be used as separator. Ex: `GET,POST` or `POST|PUT`.
+3. Integer in string, ex: `1`, `4`.
+
+Condition supports following HTTP methods:
+
+* GET
+* POST
+* PUT
+* DELETE
+* PATCH
+* HEAD
+* OPTIONS
 
 There is a http handler helper function:
 
@@ -31,8 +45,8 @@ There is a http handler helper function:
       "/foo": fooHandler,
       "/foo/{id}": fooHandler,
       "POST /me": postMeHandler,
-      "PUT /me": putMeHandler,
       "GET /me": getMeHandler,
+      "POST|GET /post": postHandler,
     });
 
     var server = http.createServer(router.httpHandler(notfound));
@@ -42,11 +56,7 @@ If the data is a function. It will auto execute when route match. And receive `[
 TODO
 ----
 
-Not only useful for http server:
-
 * Insert path and match path.
-* Not only http confition, also custom condition(int value).
-
-Solve memory leak.
+* Solve memory leak.
 
 [r3]:https://github.com/c9s/r3
