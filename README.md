@@ -31,13 +31,13 @@ The router's initial argument is an POJSO(Plain Old JavaScript Object). Key is r
 
 Condition supports following HTTP methods:
 
-* GET
-* POST
-* PUT
-* DELETE
-* PATCH
-* HEAD
-* OPTIONS
+* `GET`
+* `POST`
+* `PUT`
+* `DELETE`
+* `PATCH`
+* `HEAD`
+* `OPTIONS`
 
 There is a http handler helper function:
 
