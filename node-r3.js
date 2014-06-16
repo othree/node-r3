@@ -167,6 +167,7 @@ Router.prototype.match_path = function (path) {
   capturesBuffer = index = node = null;
   return [data, captures];
 };
+
 Router.prototype.free = function () {
   if (!this.tree) { return; }
   libr3.r3_tree_free(this.tree);
