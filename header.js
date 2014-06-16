@@ -69,26 +69,7 @@ var match_entry = StructType({
 // has_slug: "uchar"
 // });
 
-const METHOD_GET = 2;
-const METHOD_POST = 2<<1;
-const METHOD_PUT = 2<<2;
-const METHOD_DELETE = 2<<3;
-const METHOD_PATCH = 2<<4;
-const METHOD_HEAD = 2<<5;
-const METHOD_OPTIONS = 2<<6;
-
-const METHODS = {
-  GET: METHOD_GET,
-  POST: METHOD_POST,
-  PUT: METHOD_PUT,
-  DELETE: METHOD_DELETE,
-  PATCH: METHOD_PATCH,
-  HEAD: METHOD_HEAD,
-  OPTIONS: METHOD_OPTIONS
-};
-
 exports.node = node;
 exports.route = route;
 exports.match_entry = match_entry;
-exports.METHODS = METHODS;
 
