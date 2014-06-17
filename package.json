@@ -5,7 +5,7 @@
     "homepage": "https://github.com/othree/node-r3",
     "repository": "https://github.com/othree/node-r3.git",
     "author": "othree (https://github.com/othree)",
-    "main": "./node-r3.js",
+    "main": "./index.js",
     "keywords": [
         "node",
         "router",

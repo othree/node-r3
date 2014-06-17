@@ -3,9 +3,9 @@ var ref = require('ref');
 var ArrayType = require('ref-array');
 var StringArray = ArrayType("string");
 
-var libr3 = require('./lib/libr3.js');
+var libr3 = require('../lib/libr3.js');
 
-var route_parser = require('./src/route-parser.js');
+var route_parser = require('./route-parser.js');
 
 var Router = function (routes, options) {
   if (!routes) { routes = {}; }
@@ -34,6 +34,17 @@ Router.prototype.compile = function () {
   libr3.r3_tree_compile(this.tree);
 };
 
+Router.prototype.dump = function () {
+  if (!this.tree) { return; }
+  libr3.r3_tree_dump(this.tree, 0);
+};
+
+Router.prototype.free = function () {
+  if (!this.tree) { return; }
+  libr3.r3_tree_free(this.tree);
+  this.tree = null;
+};
+
 Router.prototype.insert_route = function (route, data) {
   if (!this.tree) { return; }
   var methods;
@@ -53,12 +64,6 @@ Router.prototype.insert_path = function (path, data) {
   this.index[i] = ref.alloc('int', i).ref(); // prevent GC
   path = path.trim();
   libr3.r3_tree_insert_path(this.tree, path, this.index[i]);
-};
-Router.prototype.insert = Router.prototype.insert_route;
-
-Router.prototype.dump = function () {
-  if (!this.tree) { return; }
-  libr3.r3_tree_dump(this.tree, 0);
 };
 
 Router.prototype.match_route = function (route) {
@@ -128,44 +133,10 @@ Router.prototype.match_path = function (path) {
   capturesBuffer = index = node = null;
   return [data, captures];
 };
+
+Router.prototype.insert = Router.prototype.insert_route;
 Router.prototype.match = Router.prototype.match_route;
 
-Router.prototype.free = function () {
-  if (!this.tree) { return; }
-  libr3.r3_tree_free(this.tree);
-  this.tree = null;
-};
+Router.prototype.httpHandler = require('./http-handler');
 
-Router.prototype.httpHandler = function (err) {
-  var self = this;
-  return function(req, res) {
-    var method = req.method;
-    var path = req.url;
-    var entry = [method, path].join(' ');
-
-    var result = self.match(entry);
-
-    if (result && typeof result[0] === 'function') {
-      result[0].apply(this, [req, res].concat(result[1]));
-    } else if (typeof err === 'function') {
-      if (result) {
-        err.apply(this, [req, res, result[0]].concat(result[1]));
-      } else {
-        err.apply(this, [req, res]);
-      }
-    } else {
-      res.end();
-    }
-
-    method = path = entry = result = null;
-  };
-};
-
-exports.Router = function (routes) {
-  return new Router(routes);
-};
-
-exports.PathRouter = function (routes) {
-  return new Router(routes, {path: true});
-};
-
+module.exports = Router;
