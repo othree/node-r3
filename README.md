@@ -5,6 +5,11 @@ Node.js [r3][r3] binding.
 
 [![Build Status](https://travis-ci.org/othree/node-r3.svg?branch=master)](https://travis-ci.org/othree/node-r3)
 
+Install
+-------
+
+Compile and install [r3][r3] follow its readme. Then `npm install node-r3`.
+
 Usage
 -----
 
