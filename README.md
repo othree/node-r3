@@ -10,7 +10,7 @@ Usage
 
 Basic usage:
 
-    Router = require('node-r3').Router;
+    var Router = require('node-r3').Router;
 
     var router = new Router({
       "/foo": "data string",
@@ -29,16 +29,6 @@ The router's initial argument is an POJSO(Plain Old JavaScript Object). Key is r
    No space allowed.
 3. Integer in string, ex: `1`, `4`. Usefule for custom router application. Don't support multiple method in this format. You should deal with it before send to Router. Ex: `[1 | 4, '/foo'].join(' ')`
 
-Condition supports following HTTP methods:
-
-* `GET`
-* `POST`
-* `PUT`
-* `DELETE`
-* `PATCH`
-* `HEAD`
-* `OPTIONS`
-
 There is a http handler helper function:
 
     var router = new Router({
@@ -54,6 +44,60 @@ There is a http handler helper function:
 
 If the data is a function. It will auto execute when route match. And receive `[req, res, params...]`. Otherwise, it will call `notfound` as fallback. Arguments will be `[req, res, data, params...]`. A sample file `sample/http.js` is provided.
 
+Path and Router
+---------------
+
+There are two router method on r3. One is path, one is route. The paths function is very basic. No condition, only string routing. The route  is much powerful. Supports methods condition. So its the default one in node-r3. If you want to use path router as default. Try `var Router = require('node-r3').PathRouter`. It still possible to use route function in a PathRouter. User `insert_route` and `match_route` instead of the default `insert` and `match` method. Remember to recompile the Router before use it.
+
+API
+---
+
+Constructor:
+
+* Router(router config)
+* PathRouter(router config)
+
+Router methods:
+
+* compile()
+* dump()
+* free()
+* insert(route or path, data)
+* insert_route(route, data)
+* insert_path(path, data)
+* match(route or path)
+* match_route(route)
+* match_path(path)
+
+Path is just a string, route is more powerful, format:
+
+    ""#{METHODS} #{PATH}"
+
+Methods formats:
+
+    "METHOD"
+    "METHOD1|METHOD2"
+    "METHOD1,METHOD2"
+    "3"
+
+Method includes:
+
+* `GET`
+* `POST`
+* `PUT`
+* `DELETE`
+* `PATCH`
+* `HEAD`
+* `OPTIONS`
+
+Router config:
+
+    {
+        "#{ROUTE1}": data1,
+        "#{ROUTE2}": data2,
+        "#{ROUTE3}": data3,
+    }
+
 Alternative
 -----------
 
@@ -64,7 +108,6 @@ There is another [caasi/node-r3][] projetc use different approach to let node ca
 TODO
 ----
 
-* Insert path and match path.
 * Solve memory leak.
 
 [r3]:https://github.com/c9s/r3
