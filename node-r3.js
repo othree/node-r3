@@ -29,9 +29,6 @@ var Router = function (routes, options) {
   if (options.path) {
     this.insert = Router.prototype.insert_path;
     this.match = Router.prototype.match_path;
-  } else {
-    this.insert = Router.prototype.insert_route;
-    this.match = Router.prototype.match_route;
   }
   var route;
   this.tree = libr3.r3_tree_create(10);
@@ -49,10 +46,12 @@ var Router = function (routes, options) {
 };
 
 Router.prototype.compile = function () {
+  if (!this.tree) { return; }
   libr3.r3_tree_compile(this.tree);
 };
 
 Router.prototype.insert_route = function (route, route_data) {
+  if (!this.tree) { return; }
   var m, methods;
   var i = this.i++;
   this.data[i] = route_data;
@@ -79,12 +78,14 @@ Router.prototype.insert_route = function (route, route_data) {
 };
 
 Router.prototype.insert_path = function (route, route_data) {
+  if (!this.tree) { return; }
   var i = this.i++;
   this.data[i] = route_data;
   this.index[i] = ref.alloc('int', i).ref(); // prevent GC
   route = route.trim();
   libr3.r3_tree_insert_path(this.tree, route, this.index[i]);
 };
+Router.prototype.insert = Router.prototype.insert_route;
 
 Router.prototype.dump = function () {
   if (!this.tree) { return; }
@@ -167,6 +168,7 @@ Router.prototype.match_path = function (path) {
   capturesBuffer = index = node = null;
   return [data, captures];
 };
+Router.prototype.match = Router.prototype.match_route;
 
 Router.prototype.free = function () {
   if (!this.tree) { return; }
