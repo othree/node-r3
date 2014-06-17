@@ -1,27 +1,11 @@
-/*jslint forin: true, bitwise: true */
+/*jslint forin: true */
 var ref = require('ref');
 var ArrayType = require('ref-array');
 var StringArray = ArrayType("string");
 
-var libr3 = require('./libr3.js');
+var libr3 = require('./lib/libr3.js');
 
-const METHOD_GET = 2;
-const METHOD_POST = 2<<1;
-const METHOD_PUT = 2<<2;
-const METHOD_DELETE = 2<<3;
-const METHOD_PATCH = 2<<4;
-const METHOD_HEAD = 2<<5;
-const METHOD_OPTIONS = 2<<6;
-
-const METHODS = {
-  GET: METHOD_GET,
-  POST: METHOD_POST,
-  PUT: METHOD_PUT,
-  DELETE: METHOD_DELETE,
-  PATCH: METHOD_PATCH,
-  HEAD: METHOD_HEAD,
-  OPTIONS: METHOD_OPTIONS
-};
+var route_parser = require('./src/route-parser.js');
 
 var Router = function (routes, options) {
   if (!routes) { routes = {}; }
@@ -50,40 +34,25 @@ Router.prototype.compile = function () {
   libr3.r3_tree_compile(this.tree);
 };
 
-Router.prototype.insert_route = function (route, route_data) {
+Router.prototype.insert_route = function (route, data) {
   if (!this.tree) { return; }
-  var m, methods;
+  var methods;
   var i = this.i++;
-  this.data[i] = route_data;
+  this.data[i] = data;
   this.index[i] = ref.alloc('int', i).ref(); // prevent GC
-  route = route.trim();
-  var route_frag = route.split(' ');
-  var method = 0;
-  if (route_frag.length > 1) {
-    method = route_frag.shift().toUpperCase();
-    var condition = parseInt(method, 0);
-    if (isNaN(condition)) {
-      methods = method.split(/[,|]/);
-      method = 0;
-      while ((m = methods.shift())) {
-        method = method | METHODS[m];
-      }
-    } else {
-      method = condition;
-    }
-    route = route_frag.join(' ').trim();
-    if (!method) { throw new Error("method not exist."); }
-  }
+  var parsed = route_parser(route);
+  route = parsed[0];
+  method = parsed[1];
   libr3.r3_tree_insert_route(this.tree, method, route, this.index[i]);
 };
 
-Router.prototype.insert_path = function (route, route_data) {
+Router.prototype.insert_path = function (path, data) {
   if (!this.tree) { return; }
   var i = this.i++;
-  this.data[i] = route_data;
+  this.data[i] = data;
   this.index[i] = ref.alloc('int', i).ref(); // prevent GC
-  route = route.trim();
-  libr3.r3_tree_insert_path(this.tree, route, this.index[i]);
+  path = path.trim();
+  libr3.r3_tree_insert_path(this.tree, path, this.index[i]);
 };
 Router.prototype.insert = Router.prototype.insert_route;
 
@@ -92,23 +61,14 @@ Router.prototype.dump = function () {
   libr3.r3_tree_dump(this.tree, 0);
 };
 
-Router.prototype.match_route = function (path) {
+Router.prototype.match_route = function (route) {
   if (!this.tree) { return; }
   var entry, method, condition;
 
-  path = path.trim();
-  var path_frag = path.split(' ');
-  if (path_frag.length > 1) {
-    method = path_frag.shift().toUpperCase();
-    path = path_frag.join(' ').trim();
-    condition = parseInt(method, 0);
-    if (isNaN(condition)) {
-      method = METHODS[method];
-    } else {
-      method = condition;
-    }
-  }
-  entry = libr3.match_entry_create(path);
+  var parsed = route_parser(route);
+  route = parsed[0];
+  method = parsed[1];
+  entry = libr3.match_entry_create(route);
   if (method !== undefined) {
     entry.deref().request_method = method;
   }
