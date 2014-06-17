@@ -1,6 +1,6 @@
 {
     "name": "node-r3",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "Nodejs r3 binding.",
     "homepage": "https://github.com/othree/node-r3",
     "repository": "https://github.com/othree/node-r3.git",
