@@ -3,9 +3,9 @@ var ref = require('ref');
 var ArrayType = require('ref-array');
 var StringArray = ArrayType("string");
 
-var libr3 = require('../lib/libr3.js');
+var libr3 = require('../lib/libr3');
 
-var route_parser = require('./route-parser.js');
+var route_parser = require('./route-parser');
 
 var Router = function (routes, options) {
   if (!routes) { routes = {}; }
