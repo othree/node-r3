@@ -54,24 +54,25 @@ API
 
 Constructor:
 
-* Router(router config)
-* PathRouter(router config)
+* `Router(router config)`
+* `PathRouter(router config)`
 
 Router methods:
 
-* compile()
-* dump()
-* free()
-* insert(route or path, data)
-* insert_route(route, data)
-* insert_path(path, data)
-* match(route or path)
-* match_route(route)
-* match_path(path)
+* `compile() -> void`
+* `dump() -> void`
+* `free() -> void`
+* `insert(route or path, data) -> void`
+* `insert_route(route, data) -> void`
+* `insert_path(path, data) -> void`
+* `match(route or path) -> [data, [captures]]`
+* `match_route(route) -> [data, [captures]]`
+* `match_path(path) -> [data, [captures]]`
+* `httpHandler(handler) -> function`
 
 Path is just a string, route is more powerful, format:
 
-    ""#{METHODS} #{PATH}"
+    "#{METHODS} #{PATH}"
 
 Methods formats:
 
@@ -97,6 +98,19 @@ Router config:
         "#{ROUTE2}": data2,
         "#{ROUTE3}": data3,
     }
+
+Data can be any JavaScript data type. If data is function. When use `httpHandler`. It will auto execute data function when matched. The arguments:
+
+    dataFunction(req, res, captures...)
+    
+If data is not function, `httpHandler` will execute `handler` function. And with following arguments:
+
+    handler(req, res, data, captures...)
+    
+In `httpHandler`, when no route matches. `handler` will will execute also. But without data and captures.
+
+    handler(req, res)
+    
 
 Alternative
 -----------
