@@ -34,3 +34,7 @@ server.listen(5000);
 
 console.log('Listen on http://localhost:5000/');
 
+process.on('uncaughtException', function(err) {
+  router.free();
+});
+
