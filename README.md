@@ -10,6 +10,10 @@ Install
 
 Compile and install [r3][r3] follow its readme. Then `npm install node-r3`.
 
+On Mac OSX, using homebrew:
+
+    brew install r3
+
 Usage
 -----
 
