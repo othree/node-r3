@@ -1,9 +1,9 @@
 var should = require('should');
 
 
-var Router = require('../');
+var Router = require('../src/router');
 
-var router = Router.new({
+var router = new Router({
   "/foo/bar/baz": "",
   "/foo/bar/qux": "",
   "/foo/bar/quux": "",
