@@ -87,7 +87,7 @@ Router.prototype.match_route = function (route) {
     return;
   }
 
-  var index = node.deref().data.reinterpret(4).readUInt32LE(0);
+  var index = node.deref().data.reinterpret(ref.types.uint32.size).readUInt32LE(0);
   var data = this.data[index];
 
   var vars = entry.deref().vars.deref();
@@ -117,7 +117,7 @@ Router.prototype.match_path = function (path) {
     return;
   }
 
-  var index = node.deref().data.reinterpret(4).readUInt32LE(0);
+  var index = node.deref().data.reinterpret(ref.types.uint32.size).readUInt32LE(0);
   var data = this.data[index];
 
   var vars = entry.deref().vars.deref();
