@@ -50,7 +50,7 @@ Router.prototype.insert_route = function (route, data) {
   var methods;
   var i = this.i++;
   this.data[i] = data;
-  this.index[i] = ref.alloc('uint32', i).ref(); // prevent GC
+  this.index[i] = ref.alloc('uint32', i); // prevent GC
   var parsed = route_parser(route);
   route = parsed[0];
   method = parsed[1];
@@ -61,7 +61,7 @@ Router.prototype.insert_path = function (path, data) {
   if (!this.tree) { return; }
   var i = this.i++;
   this.data[i] = data;
-  this.index[i] = ref.alloc('uint32', i).ref(); // prevent GC
+  this.index[i] = ref.alloc('uint32', i); // prevent GC
   path = path.trim();
   libr3.r3_tree_insert_path(this.tree, path, this.index[i]);
 };
@@ -87,7 +87,7 @@ Router.prototype.match_route = function (route) {
     return;
   }
 
-  var index = node.deref().data.reinterpret(8).readPointer(0, 4).readUInt32LE(0);
+  var index = node.deref().data.reinterpret(4).readUInt32LE(0);
   var data = this.data[index];
 
   var vars = entry.deref().vars.deref();
@@ -117,7 +117,7 @@ Router.prototype.match_path = function (path) {
     return;
   }
 
-  var index = node.deref().data.reinterpret(8).readPointer(0, 4).readUInt32LE(0);
+  var index = node.deref().data.reinterpret(4).readUInt32LE(0);
   var data = this.data[index];
 
   var vars = entry.deref().vars.deref();
